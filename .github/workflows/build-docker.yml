@@ -1,11 +1,12 @@
 name: Docker
 
 on:
-  push:
-    paths-ignore:
-      - "README.md"
-    branches:
-      - guest_accounts
+  - workflow_dispatch
+  - push:
+      paths-ignore:
+        - "README.md"
+      branches:
+        - guest_accounts
 
 jobs:
   build-docker-amd64:
