@@ -9,7 +9,8 @@ on:
         - guest_accounts
 
 jobs:
-  build-docker-amd64:
+  docker:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Docker meta
