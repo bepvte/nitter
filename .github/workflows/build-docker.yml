@@ -1,8 +1,8 @@
 name: Docker
 
 on:
-  - workflow_dispatch
-  - push:
+  workflow_dispatch:
+  push:
       paths-ignore:
         - "README.md"
       branches:
