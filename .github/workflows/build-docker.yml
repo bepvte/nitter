@@ -35,7 +35,7 @@ jobs:
       - name: Build and push AMD64 Docker image
         uses: docker/build-push-action@v5
         with:
-          cache-to: type=registry,ref=${{ steps.meta.outputs.tags }}-cache,mode=max,image-manifest=true
+          cache-to: type=registry,ref=${{ steps.meta.outputs.tags }}-cache,mode=max
           cache-from: type=registry,ref=${{ steps.meta.outputs.tags }}-cache
           push: true
           tags: ${{ steps.meta.outputs.tags }}
