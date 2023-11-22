@@ -37,7 +37,7 @@ jobs:
         with:
           context: .
           cache-to: type=inline
-          cache-from: type=registry,ref=${{ steps.meta.outputs.tags[0] }}
+          cache-from: type=registry,ref=${{ steps.meta.outputs.tags }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
