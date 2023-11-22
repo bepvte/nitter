@@ -47,3 +47,4 @@ jobs:
           user: ${{ github.repository_owner }}
           container: nitter
           prune-untagged: true
+          keep-last: 2
