@@ -40,3 +40,10 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+      - name: Prune
+        uses: vlaurin/action-ghcr-prune@v0.5.0
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+          user: ${{ github.repository_owner }}
+          container: nitter
+          prune-untagged: true
