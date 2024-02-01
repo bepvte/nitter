@@ -1,62 +1,50 @@
 name: Docker
 
 on:
+  workflow_dispatch:
   push:
-    paths-ignore:
-      - "README.md"
-    branches:
-      - master
+      paths-ignore:
+        - "README.md"
+      branches:
+        - guest_accounts
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  tests:
-    uses: ./.github/workflows/run-tests.yml
-  build-docker-amd64:
-    needs: [tests]
-    runs-on: buildjet-2vcpu-ubuntu-2204
+  docker:
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
         with:
-          fetch-depth: 0
+          images: ghcr.io/${{github.repository}}
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
         with:
           version: latest
-      - name: Login to DockerHub
-        uses: docker/login-action@v2
+      - name: Login to GHCR
+        uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push AMD64 Docker image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./Dockerfile
-          platforms: linux/amd64
+          cache-to: type=registry,ref=${{ steps.meta.outputs.tags }}-cache,mode=max
+          cache-from: type=registry,ref=${{ steps.meta.outputs.tags }}-cache
           push: true
-          tags: zedeus/nitter:latest,zedeus/nitter:${{ github.sha }}
-  build-docker-arm64:
-    needs: [tests]
-    runs-on: buildjet-2vcpu-ubuntu-2204-arm
-    steps:
-      - uses: actions/checkout@v3
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      - name: Prune
+        uses: vlaurin/action-ghcr-prune@v0.5.0
         with:
-          fetch-depth: 0
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v2
-        with:
-          version: latest
-      - name: Login to DockerHub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Build and push ARM64 Docker image
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          file: ./Dockerfile.arm64
-          platforms: linux/arm64
-          push: true
-          tags: zedeus/nitter:latest-arm64,zedeus/nitter:${{ github.sha }}-arm64
+          token: ${{ secrets.PAT_TOKEN }}
+          user: ${{ github.repository_owner }}
+          container: nitter
+          prune-untagged: true
+          keep-last: 2
