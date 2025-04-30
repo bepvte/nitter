@@ -27,12 +27,11 @@ services:
     networks: [nitter_network]
 
   nitter-redis:
-    image: redis:6-alpine
+    image: valkey/valkey:7.2.5-alpine
     container_name: nitter-redis
     command: redis-server --save 60 1 --loglevel warning
-    networks: [nitter_network]
     volumes:
-      - nitter-redis:/data
+      - nitter-redis:/data:rw
     restart: unless-stopped
     # healthcheck:
     #   test: redis-cli ping
@@ -45,10 +44,11 @@ services:
       - no-new-privileges:true
     cap_drop:
       - ALL
+    networks: [nitter_network]
 
 volumes:
   nitter-redis:
 
 networks:
   nitter_network:
-    external: true
+    enable_ipv6: true
